@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Bash(sudo chown -R 501:20 \"/Users/gibigbig/.npm\")",
+      "Bash(node server.js)",
+      "Bash(curl -s http://localhost:3000/api/drives)",
+      "Bash(node -e ' *)",
+      "Bash(curl -s -X POST http://localhost:3000/api/open -H \"Content-Type: application/json\" -d '{\"path\":\"/tmp/test.db\"}')",
+      "Bash(curl -s http://localhost:3000/api/db)",
+      "Bash(curl -s \"http://localhost:3000/api/table/users?page=1&limit=50\")",
+      "Bash(curl -s -X POST http://localhost:3000/api/table/users/rows -H 'Content-Type: application/json' -d '{\"data\":{\"name\":\"Charlie\",\"email\":\"charlie@test.com\"}}')",
+      "Bash(curl -s -X PUT http://localhost:3000/api/table/users/rows/1 -H 'Content-Type: application/json' -d '{\"data\":{\"name\":\"Alice Updated\"}}')",
+      "Bash(curl -s http://localhost:3000/api/schema/users)",
+      "Bash(curl -s \"http://localhost:3000/api/table/users/export.csv\")",
+      "Bash(pkill -f \"node server.js\")",
+      "Bash(open http://localhost:3000)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('rows:', len\\(d['rows']\\), '| schema cols:', [c['name'] for c in d['schema']]\\)\")"
+    ]
+  }
+}
