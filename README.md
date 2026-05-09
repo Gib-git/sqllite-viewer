@@ -11,8 +11,9 @@ A web-based SQLite database viewer and editor built with Node.js. Open any `.db`
 - **File Browser** — navigate your entire filesystem to select a database file
 - **Upload** — drag & drop or upload a file directly from your device
 - **Data View** — paginated table grid with sorting, filtering, and configurable page size
-- **Row Editing** — add, edit, and delete rows with a modal form
+- **Row Editing** — add, edit, and delete rows; text columns use auto-growing textareas
 - **Bulk Delete** — select multiple rows with checkboxes and delete in one click
+- **Sticky Actions Column** — Edit/Delete buttons stay visible while scrolling wide tables
 - **Schema View** — inspect columns, types, constraints, indices, foreign keys, and the raw DDL
 - **Schema Editing** — rename/drop columns, add columns, rename/drop tables
 - **Create Table** — write a `CREATE TABLE` statement to add a new table
@@ -24,31 +25,72 @@ A web-based SQLite database viewer and editor built with Node.js. Open any `.db`
 
 ## Requirements
 
-- [Node.js](https://nodejs.org/) v18 or later
+- [Node.js](https://nodejs.org/) v18 or later  **or**  [Docker](https://docs.docker.com/get-docker/) + [Docker Compose](https://docs.docker.com/compose/)
 
 No native compilation required — SQLite runs via WebAssembly (`sql.js`).
 
 ---
 
-## Setup
+## Quick Start (Node.js)
 
 ```bash
-# 1. Clone or download the project
-cd "sqllite viewer"
-
-# 2. Install dependencies
 npm install
-
-# 3. Start the server
 node server.js
 ```
 
-Then open **http://localhost:3000** in your browser.
+Open **http://localhost:3000** in your browser.
 
 To use a different port:
 
 ```bash
 PORT=8080 node server.js
+```
+
+---
+
+## Docker
+
+### Build and run with Docker Compose (recommended)
+
+```bash
+docker compose up --build
+```
+
+Open **http://localhost:3010** in your browser.
+
+The container mounts your home directory at the same path it has on your machine, so the file browser can navigate to any file you have access to.
+
+### Run in the background
+
+```bash
+docker compose up --build -d
+```
+
+### Stop
+
+```bash
+docker compose down
+```
+
+### Build the image manually
+
+```bash
+docker build -t sqlite-viewer .
+docker run -p 3010:3000 \
+  -v "$HOME:$HOME" \
+  -e HOME="$HOME" \
+  sqlite-viewer
+```
+
+### Expose additional locations
+
+Edit `docker-compose.yml` and uncomment the relevant volume lines:
+
+```yaml
+volumes:
+  - ${HOME}:${HOME}       # already enabled — host home directory
+  - /Volumes:/Volumes     # macOS external drives
+  - /home:/home           # full Linux home tree
 ```
 
 ---
@@ -59,7 +101,7 @@ PORT=8080 node server.js
 
 **Browse Files** — click "Browse Files" (header or landing screen) to navigate your filesystem. Folders and SQLite files are shown; click a file to open it.
 
-**Upload** — click "Upload" or drag & drop a file onto the landing screen. Uploaded files are stored temporarily in the `uploads/` folder.
+**Upload** — click "Upload" or drag & drop a file onto the landing screen.
 
 ### Viewing data
 
@@ -71,13 +113,15 @@ Select a table from the left sidebar. The **Data** tab shows a paginated grid:
 | Search box | Filter visible rows |
 | Rows dropdown | Change page size (25 / 50 / 100 / 250) |
 | Row checkbox | Select rows for bulk delete |
-| Edit button | Open edit modal for that row |
-| Delete button | Delete that single row |
+| Edit button *(sticky right)* | Open edit modal for that row |
+| Delete button *(sticky right)* | Delete that single row |
+
+The **Edit** and **Delete** buttons are pinned to the right edge of the table — they stay visible while scrolling horizontally through wide tables.
 
 ### Editing data
 
 - **Add Row** — click the green "Add Row" button. Fill in field values and click "Insert Row".
-- **Edit Row** — click the "Edit" button on any row. Modify values and click "Save Changes".
+- **Edit Row** — click the "Edit" button on any row. Text and blob columns use auto-sizing textareas; other types use single-line inputs.
 - **Delete Row(s)** — check one or more rows, then click the red "Delete (n)" button.
 
 ### Schema
@@ -128,13 +172,16 @@ Click **Export CSV** in the content header to download the current table as a co
 
 ```
 sqllite viewer/
-├── server.js          # Express server + SQLite API
+├── Dockerfile
+├── docker-compose.yml
+├── .dockerignore
+├── server.js              # Express server + SQLite API
 ├── package.json
 ├── public/
-│   ├── index.html     # App HTML
-│   ├── style.css      # Styles (mobile-first, responsive)
-│   └── app.js         # Frontend JavaScript
-└── uploads/           # Temporary storage for uploaded files (auto-created)
+│   ├── index.html         # App HTML
+│   ├── style.css          # Styles (mobile-first, responsive)
+│   └── app.js             # Frontend JavaScript
+└── uploads/               # Temporary storage for uploaded files (auto-created)
 ```
 
 ---
@@ -143,18 +190,19 @@ sqllite viewer/
 
 | Layer | Technology |
 |---|---|
-| Runtime | Node.js |
+| Runtime | Node.js 20 |
 | Web server | Express |
 | SQLite engine | [sql.js](https://sql.js.org/) (SQLite compiled to WebAssembly) |
 | File uploads | Multer |
+| Container | Docker / Docker Compose |
 | Frontend | Vanilla HTML / CSS / JavaScript — no framework |
 
-Using `sql.js` means no native compilation is needed, so the app installs and runs on any platform without build tools.
+Using `sql.js` means no native compilation is needed, so the app installs and runs on any platform without build tools — including inside a minimal Alpine-based Docker image.
 
 ---
 
 ## Notes
 
 - The database is loaded into memory when opened. Changes are written back to disk after every write operation. For very large databases (> 500 MB) this may use significant RAM.
-- Uploaded files are stored in `uploads/` relative to the project directory. You can delete this folder at any time.
-- The file browser can access any path your OS user has read permission for.
+- Uploaded files are stored in `uploads/` (a named Docker volume when running via Compose, or the local `uploads/` folder otherwise).
+- The file browser can access any path your OS user (or container user) has read permission for.
