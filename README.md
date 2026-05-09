@@ -50,47 +50,50 @@ PORT=8080 node server.js
 
 ## Docker
 
-### Build and run with Docker Compose (recommended)
+### ZimaOS
 
-```bash
-docker compose up --build
-```
-
-Open **http://localhost:3010** in your browser.
-
-The container mounts your home directory at the same path it has on your machine, so the file browser can navigate to any file you have access to.
-
-### Run in the background
+SSH into your ZimaOS machine, clone or copy the project, then run:
 
 ```bash
 docker compose up --build -d
+```
+
+Open **http://\<your-zima-ip\>:3010** in your browser.
+
+The compose file mounts the paths ZimaOS uses out of the box:
+
+| Mount | What you can browse |
+|---|---|
+| `/root` | Root user home directory |
+| `/home` | All other user home directories |
+| `/DATA` | ZimaOS main storage (Media, Documents, etc.) |
+| `/media` | USB drives and external media |
+| `/mnt` | Other mounted filesystems |
+
+### Any Linux server
+
+Same command:
+
+```bash
+docker compose up --build -d
+```
+
+Adjust the volume list in `docker-compose.yml` to match your storage layout.
+
+### macOS (local dev)
+
+```bash
+docker run -p 3010:3000 \
+  -v "$HOME:$HOME" \
+  -v /Volumes:/Volumes \
+  -e HOME="$HOME" \
+  $(docker build -q .)
 ```
 
 ### Stop
 
 ```bash
 docker compose down
-```
-
-### Build the image manually
-
-```bash
-docker build -t sqlite-viewer .
-docker run -p 3010:3000 \
-  -v "$HOME:$HOME" \
-  -e HOME="$HOME" \
-  sqlite-viewer
-```
-
-### Expose additional locations
-
-Edit `docker-compose.yml` and uncomment the relevant volume lines:
-
-```yaml
-volumes:
-  - ${HOME}:${HOME}       # already enabled — host home directory
-  - /Volumes:/Volumes     # macOS external drives
-  - /home:/home           # full Linux home tree
 ```
 
 ---

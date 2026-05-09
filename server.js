@@ -155,10 +155,22 @@ app.get('/api/drives', (req, res) => {
   } else {
     drives.push({ name: 'Root (/)', path: '/' });
     drives.push({ name: 'Home', path: os.homedir() });
-    ['/Volumes', '/mnt', '/media'].forEach(m => {
+
+    // Directories that contain user home folders or mount points
+    ['/home', '/Users', '/Volumes', '/mnt', '/media'].forEach(m => {
       try {
-        fs.readdirSync(m, { withFileTypes: true }).forEach(e => {
-          if (e.isDirectory()) drives.push({ name: e.name, path: path.join(m, e.name) });
+        const stat = fs.statSync(m);
+        if (!stat.isDirectory()) return;
+        // If the dir itself is meaningful (e.g. /home), list its children as entries
+        const entries = fs.readdirSync(m, { withFileTypes: true });
+        entries.forEach(e => {
+          if (e.isDirectory()) {
+            const fullPath = path.join(m, e.name);
+            // Skip if it's the same as the already-added Home entry
+            if (fullPath !== os.homedir()) {
+              drives.push({ name: `${e.name} (${m})`, path: fullPath });
+            }
+          }
         });
       } catch (_) {}
     });

@@ -1,24 +1,18 @@
 services:
   sqlite-viewer:
     build: .
+    container_name: sqlite-viewer
     ports:
       - "3010:3000"
     volumes:
-      # Mount the host home directory at the same path so the file browser
-      # sees identical paths to what's on the host machine.
-      - ${HOME}:${HOME}
-
-      # Uncomment to also expose external drives on macOS:
-      # - /Volumes:/Volumes
-
-      # Uncomment to expose the full Linux home tree:
-      - /home:/home
-
-      # Persistent storage for uploaded files
-      - uploads:/app/uploads
+      - /root:/root           # ZimaOS root user home
+      - /home:/home           # all other user home directories
+      - /DATA:/DATA           # ZimaOS main storage
+      - /media:/media         # USB drives / external media
+      - /mnt:/mnt             # other mounted filesystems
+      - uploads:/app/uploads  # uploaded files (persisted across restarts)
     environment:
-      # Keeps os.homedir() pointing at the real host home directory
-      - HOME=${HOME}
+      - HOME=/root
       - PORT=3000
     restart: unless-stopped
 
