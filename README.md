@@ -1,6 +1,8 @@
+<img width="2560" height="1285" alt="Screenshot 2026-05-09 at 7 52 12 AM" src="https://github.com/user-attachments/assets/d8c96542-7d4c-4810-a357-f957b61da9b1" />
+
 # SQLite Viewer
 
-A web-based SQLite database viewer and editor built with Node.js. Open any `.db`, `.sqlite`, or `.sqlite3` file from your filesystem, browse its contents, edit data, and modify schemas — all from a clean, mobile-friendly UI in your browser.
+A web-based SQLite database viewer and editor built with Node.js. Open any `.db`, `.sqlite`, or `.sqlite3` file from your filesystem, browse its contents, edit data, and modify schemas — all from a clean, mobile-friendly UI in your browser. Made this because the sql viewer in vscode, actually sucks in terms of UI and of course they want you to pay if you DB is over a certain size, and paywall native sql features. 
 
 ---
 
